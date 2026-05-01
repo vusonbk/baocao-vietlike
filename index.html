@@ -484,16 +484,14 @@
               <input id="ngay" type="date" required>
             </div>
 
-            <div class="field">
+            <div class="field" style="display:none;">
               <label class="required" for="nhansu">Nh&#226;n s&#7921; th&#7921;c hi&#7879;n</label>
               <select id="nhansu" required disabled></select>
-              <div class="locked-hint">&#128274; &#272;&#227; x&#225;c th&#7921;c t&#7915; m&#224;n h&#236;nh &#273;&#259;ng nh&#7853;p</div>
             </div>
 
-            <div class="field">
+            <div class="field" style="display:none;">
               <label class="required" for="phong">Ph&#242;ng / B&#7897; ph&#7853;n</label>
               <select id="phong" required disabled></select>
-              <div class="locked-hint">&#128274; &#272;&#227; x&#225;c th&#7921;c t&#7915; m&#224;n h&#236;nh &#273;&#259;ng nh&#7853;p</div>
             </div>
 
             <div class="summary-box" id="summaryBox">
@@ -579,7 +577,7 @@
     /* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
        STATE
     \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
-    var S = { staff:[], depts:[], tasks:4, max:10 };
+    var S = { staff:[], depts:[], tasks:3, max:10 };
     var SESSION = { maNv:'', hoTen:'', email:'', maPhong:'', tenPhong:'', loginTime:0, timer:null, warningTimer:null };
 
     /* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
@@ -770,7 +768,7 @@
       loginErrEl.classList.remove('show');
 
       // Reset tasks
-      S.tasks = 4;
+      S.tasks = 3;
     }
 
     /* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
