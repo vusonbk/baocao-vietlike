@@ -5,6 +5,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>B&#225;o c&#225;o c&#244;ng vi&#7879;c VietlikeTravel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
       --green:#2d7a2d; --green2:#3da83d; --lime:#6abf4b;
@@ -16,12 +19,12 @@
     }
     * { box-sizing:border-box; margin:0; padding:0; }
     body {
-      font-family:Arial,Helvetica,sans-serif;
+      font-family:'Nunito', Arial, Helvetica, sans-serif;
       color:var(--text);
       background:linear-gradient(135deg,#1a4d1a 0%,#2d7a2d 40%,#3da83d 100%);
       min-height:100vh;
     }
-    input,select,textarea,button,option { font-family:Arial,Helvetica,sans-serif !important; }
+    input,select,textarea,button,option { font-family:'Nunito', Arial, Helvetica, sans-serif !important; }
 
     /* &#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;&#9552;
        LOGIN SCREEN
@@ -231,10 +234,22 @@
 
     /* BUTTONS */
     .add-work {
-      margin-top:14px; border:1.5px dashed #81c784;
-      background:#f1f8e9; color:#2d7a2d;
-      border-radius:18px; padding:12px 18px;
-      font-weight:700; cursor:pointer; width:100%; font-size:14px;
+      margin-top:14px;
+      border:2px solid #2d7a2d;
+      background:linear-gradient(135deg,#e8f5e9,#c8e6c9);
+      color:#1b5e20;
+      border-radius:18px; padding:13px 18px;
+      font-weight:800; cursor:pointer; width:100%; font-size:14px;
+      letter-spacing:.2px;
+      box-shadow:0 3px 10px rgba(45,122,45,.15);
+      transition:.2s;
+    }
+    .add-work:hover {
+      background:linear-gradient(135deg,#2d7a2d,#3da83d);
+      color:#fff;
+      border-color:#1b5e20;
+      box-shadow:0 6px 18px rgba(45,122,45,.3);
+      transform:translateY(-1px);
     }
     .actions { display:flex; justify-content:center; gap:14px; margin-top:20px; flex-wrap:wrap; }
     .btn {
@@ -308,10 +323,18 @@
     @media (max-width:960px) { .layout { grid-template-columns:1fr; } }
     @media (max-width:600px) {
       .page { padding:10px 8px 24px; }
-      .hero { padding:14px 16px; gap:12px; flex-wrap:wrap; }
-      .hero-logo { height:44px; }
-      .hero-text h1 { font-size:16px; }
-      .hero-user-badge { margin-left:0; width:100%; text-align:left; }
+      .hero {
+        padding:16px;
+        gap:10px;
+        flex-direction:column;
+        align-items:center;
+        text-align:center;
+      }
+      .hero-logo { height:48px; }
+      .hero-text { text-align:center; }
+      .hero-text h1 { font-size:17px; }
+      .hero-text p  { font-size:12px; }
+      .hero-user-badge { margin-left:0; width:100%; text-align:center; }
       .card { padding:16px 12px; }
       .task-grid { grid-template-columns:1fr; }
       .task-grid .status-col { width:100%; }
