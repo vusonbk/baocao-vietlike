@@ -879,7 +879,7 @@
     function closeOverlay() {
       overlayEl.classList.remove('show');
       formEl.reset();
-      setTimeout(function() { setToday(); S.tasks=4; renderTasks(); updateSummary(); }, 0);
+      setTimeout(function() { setToday(); S.tasks=2; renderTasks(); updateSummary(); }, 0);
     }
 
     /* LOADING */
@@ -898,7 +898,7 @@
     addBtn.addEventListener('click', addTask);
 
     formEl.addEventListener('reset', function() {
-      setTimeout(function() { setToday(); S.tasks=4; renderTasks(); updateSummary(); clearErr(); }, 0);
+      setTimeout(function() { setToday(); S.tasks=2; renderTasks(); updateSummary(); clearErr(); }, 0);
     });
 
     fileInput.addEventListener('change', function() {
