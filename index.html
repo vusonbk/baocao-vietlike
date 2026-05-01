@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
+  <base target="_top">
   <meta charset="utf-8">
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>B&#225;o c&#225;o c&#244;ng vi&#7879;c VietlikeTravel</title>
   <style>
@@ -318,6 +318,75 @@
       .actions .btn { width:100%; }
       .login-card { padding:30px 20px 24px; }
     }
+
+    /* STATS PANEL */
+    .stats-panel {
+      display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px;
+    }
+    .stat-card {
+      background:linear-gradient(135deg,#f1f8e9,#e8f5e9);
+      border:1.5px solid #a5d6a7; border-radius:18px;
+      padding:16px 18px; cursor:pointer; transition:.2s; position:relative;
+    }
+    .stat-card:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(45,122,45,.18); border-color:#4caf50; }
+    .stat-month { font-size:11px; font-weight:800; color:#4a6741; text-transform:uppercase; letter-spacing:.6px; margin-bottom:4px; }
+    .stat-count { font-size:36px; font-weight:900; color:#1b5e20; line-height:1; }
+    .stat-label { font-size:12px; color:#4a6741; margin-top:3px; }
+    .stat-status { font-size:11px; margin-top:5px; min-height:14px; }
+    .stat-hint { font-size:11px; color:#81c784; margin-top:7px; border-top:1px dashed #c8e6c9; padding-top:6px; }
+    .stat-card.prev-month { background:linear-gradient(135deg,#fff8e1,#fff3cd); border-color:#ffe082; }
+    .stat-card.prev-month:hover { border-color:#ffa000; box-shadow:0 8px 24px rgba(255,160,0,.18); }
+    .stat-card.prev-month .stat-count { color:#bf360c; }
+    .stat-card.prev-month .stat-month { color:#6d4c41; }
+    .stat-card.prev-month .stat-hint { color:#ffb74d; border-color:#ffe082; }
+    .stat-loading { font-size:12px; color:#81c784; text-align:center; padding:8px 0; margin-bottom:14px; }
+    /* DETAIL MODAL */
+    .detail-overlay {
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,.55);
+      z-index:10002; align-items:center; justify-content:center; padding:16px;
+    }
+    .detail-overlay.show { display:flex; }
+    .detail-box {
+      background:#fff; border-radius:24px; width:100%; max-width:520px;
+      max-height:82vh; overflow:hidden; display:flex; flex-direction:column;
+      box-shadow:0 24px 70px rgba(0,0,0,.32); animation:pop .25s ease;
+    }
+    .detail-hdr {
+      background:linear-gradient(135deg,#2d7a2d,#3da83d);
+      color:#fff; padding:18px 22px;
+      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+    }
+    .detail-hdr h3 { font-size:16px; margin:0; }
+    .detail-hdr p  { font-size:12px; opacity:.88; margin:4px 0 0; }
+    .detail-hdr-close {
+      background:rgba(255,255,255,.2); border:none; color:#fff;
+      border-radius:50%; width:30px; height:30px; min-width:30px;
+      font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    }
+    .detail-hdr-close:hover { background:rgba(255,255,255,.35); }
+    .detail-body { overflow-y:auto; padding:14px 18px 18px; }
+    .detail-summary-bar {
+      background:#e8f5e9; border-radius:12px; padding:10px 14px;
+      font-size:13px; font-weight:700; color:#1b5e20;
+      display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap;
+    }
+    .detail-empty { text-align:center; color:#a5d6a7; padding:28px 0; font-size:14px; }
+    .rpt-item {
+      display:flex; align-items:center; gap:12px;
+      padding:11px 14px; border-radius:14px; margin-bottom:8px;
+      border:1px solid #e8f5e9; background:#f9fbe7; transition:.12s;
+    }
+    .rpt-item:hover { background:#e8f5e9; border-color:#a5d6a7; }
+    .rpt-num {
+      width:26px; height:26px; border-radius:50%; flex-shrink:0;
+      background:linear-gradient(135deg,#3da83d,#2d7a2d);
+      color:#fff; font-size:12px; font-weight:800;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .rpt-info { flex:1; min-width:0; }
+    .rpt-date { font-size:13px; font-weight:700; color:#1b5e20; }
+    .rpt-time { font-size:11px; color:#4a6741; margin-top:2px; }
+    .rpt-dept { font-size:11px; color:#81c784; }
   </style>
 </head>
 <body>
@@ -431,6 +500,10 @@
               Vui l&#242;ng &#273;&#259;ng nh&#7853;p &#273;&#7875; b&#7855;t &#273;&#7847;u nh&#7853;p b&#225;o c&#225;o.
             </div>
 
+
+            <!-- THONG KE BAO CAO -->
+            <div id="statsLoading" class="stat-loading" style="display:none;">Dang tai thong ke...</div>
+            <div id="statsPanel" class="stats-panel" style="display:none;"></div>
             <div class="field">
               <label for="vandeton">V&#7845;n &#273;&#7873; t&#7891;n t&#7841;i / kh&#243; kh&#259;n</label>
               <textarea id="vandeton" placeholder="Nh&#7853;p v&#7845;n &#273;&#7873; t&#7891;n t&#7841;i, kh&#243; kh&#259;n trong ng&#224;y n&#7871;u c&#243;..."></textarea>
@@ -479,6 +552,20 @@
 
       <div class="footer">VietlikeTravel Daily Work Report System</div>
     </div>
+    <!-- DETAIL MODAL -->
+    <div class="detail-overlay" id="detailOverlay" onclick="if(event.target===this)closeDetailBtn()">
+      <div class="detail-box">
+        <div class="detail-hdr">
+          <div>
+            <h3 id="detailTitle"></h3>
+            <p id="detailSubtitle"></p>
+          </div>
+          <button class="detail-hdr-close" onclick="closeDetailBtn()">&#10005;</button>
+        </div>
+        <div class="detail-body" id="detailBody"></div>
+      </div>
+    </div>
+
   </div>
 
   <script>
@@ -596,6 +683,7 @@
       renderTasks();
       updateSummary();
       startSessionTimer();
+      loadStats();
     }
 
     function fillLockedFields() {
@@ -878,6 +966,134 @@
     /* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
        START
     \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
+    /* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+       STATS & DETAIL
+    \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
+    var STATS = { current:[], prev:[], cy:0, cm:0, py:0, pm:0 };
+
+    function loadStats() {
+      var now = new Date();
+      STATS.cy = now.getFullYear();
+      STATS.cm = now.getMonth() + 1;
+      STATS.py = STATS.cm === 1 ? STATS.cy - 1 : STATS.cy;
+      STATS.pm = STATS.cm === 1 ? 12 : STATS.cm - 1;
+
+      document.getElementById('statsLoading').style.display = 'block';
+      document.getElementById('statsPanel').style.display   = 'none';
+
+      fetch(SCRIPT_URL + '?action=stats' +
+        '&maNv=' + encodeURIComponent(SESSION.maNv) +
+        '&cy='   + STATS.cy + '&cm=' + STATS.cm +
+        '&py='   + STATS.py + '&pm=' + STATS.pm)
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+          document.getElementById('statsLoading').style.display = 'none';
+          STATS.current = (res.ok && res.data) ? (res.data.current || []) : [];
+          STATS.prev    = (res.ok && res.data) ? (res.data.prev    || []) : [];
+          renderStatsCards();
+          document.getElementById('statsPanel').style.display = 'grid';
+        })
+        .catch(function() {
+          document.getElementById('statsLoading').style.display = 'none';
+          STATS.current = []; STATS.prev = [];
+          renderStatsCards();
+          document.getElementById('statsPanel').style.display = 'grid';
+        });
+    }
+
+    function wdInMonth(y, m) {
+      var n = 0, d = new Date(y, m-1, 1);
+      while (d.getMonth() === m-1) { var w=d.getDay(); if(w&&w!==6) n++; d.setDate(d.getDate()+1); }
+      return n;
+    }
+    function wdUpToday(y, m) {
+      var today = new Date();
+      var isCur = today.getFullYear()===y && today.getMonth()+1===m;
+      if (!isCur) return wdInMonth(y,m);
+      var n=0, d=new Date(y,m-1,1);
+      while (d.getMonth()===m-1 && d.getDate()<=today.getDate()) {
+        var w=d.getDay(); if(w&&w!==6) n++; d.setDate(d.getDate()+1);
+      }
+      return n;
+    }
+
+    function mnName(m, y) {
+      return 'Th\u00e1ng\u00a0' + m + '\u00a0/\u00a0' + y;
+    }
+
+    function renderStatsCards() {
+      var cCnt = STATS.current.length, pCnt = STATS.prev.length;
+      var cWd  = wdInMonth(STATS.cy, STATS.cm);
+      var pWd  = wdInMonth(STATS.py, STATS.pm);
+      var cDue = wdUpToday(STATS.cy, STATS.cm);
+      var cMiss= Math.max(0, cDue - cCnt);
+      var pMiss= Math.max(0, pWd  - pCnt);
+
+      var cStatus = cMiss > 0
+        ? '<span style="color:#bf360c;">\u26a0\ufe0f C\u00f3 th\u1ec3 thi\u1ebfu ' + cMiss + ' ng\u00e0y</span>'
+        : (cCnt > 0 ? '<span style="color:#2d7a2d;">\u2705 \u0110\u1ee7 ' + cDue + ' ng\u00e0y</span>' : '<span style="color:#9e9e9e;">\u2014</span>');
+      var pStatus = pMiss > 0
+        ? '<span style="color:#bf360c;">\u26a0\ufe0f Thi\u1ebfu ' + pMiss + '/' + pWd + ' ng\u00e0y</span>'
+        : (pCnt > 0 ? '<span style="color:#2d7a2d;">\u2705 \u0110\u1ee7 ' + pWd + '/' + pWd + ' ng\u00e0y</span>'
+                    : '<span style="color:#c62828;">\u274c Ch\u01b0a c\u00f3 b\u00e1o c\u00e1o</span>');
+
+      document.getElementById('statsPanel').innerHTML =
+        '<div class="stat-card" onclick="openDetail(\'current\')">' +
+          '<div class="stat-month">' + mnName(STATS.cm, STATS.cy) + '</div>' +
+          '<div class="stat-count">' + cCnt + '</div>' +
+          '<div class="stat-label">b\u00e1o c\u00e1o \u0111\u00e3 g\u1eedi</div>' +
+          '<div class="stat-status">' + cStatus + '</div>' +
+          '<div class="stat-hint">\ud83d\udccb Xem chi ti\u1ebft \u2192</div>' +
+        '</div>' +
+        '<div class="stat-card prev-month" onclick="openDetail(\'prev\')">' +
+          '<div class="stat-month">' + mnName(STATS.pm, STATS.py) + '</div>' +
+          '<div class="stat-count">' + pCnt + '</div>' +
+          '<div class="stat-label">b\u00e1o c\u00e1o \u0111\u00e3 g\u1eedi</div>' +
+          '<div class="stat-status">' + pStatus + '</div>' +
+          '<div class="stat-hint">\ud83d\udccb Xem chi ti\u1ebft \u2192</div>' +
+        '</div>';
+    }
+
+    function openDetail(which) {
+      var rows  = which === 'current' ? STATS.current : STATS.prev;
+      var y     = which === 'current' ? STATS.cy : STATS.py;
+      var m     = which === 'current' ? STATS.cm : STATS.pm;
+      var wd    = wdInMonth(y, m);
+      var miss  = Math.max(0, wd - rows.length);
+
+      document.getElementById('detailTitle').textContent    = mnName(m,y) + ' \u2014 ' + SESSION.hoTen;
+      document.getElementById('detailSubtitle').textContent = 'Ph\u00f2ng ' + SESSION.tenPhong;
+
+      var body = document.getElementById('detailBody');
+      if (!rows.length) {
+        body.innerHTML = '<div class="detail-empty">\ud83d\udcc2 Ch\u01b0a c\u00f3 b\u00e1o c\u00e1o n\u00e0o trong th\u00e1ng n\u00e0y.</div>';
+      } else {
+        var statusStr = miss > 0
+          ? '<span style="color:#bf360c;">\u26a0\ufe0f Thi\u1ebfu ' + miss + ' ng\u00e0y</span>'
+          : '<span style="color:#1b5e20;">\u2705 \u0110\u1ee7 ' + wd + ' ng\u00e0y l\u00e0m vi\u1ec7c</span>';
+        var html =
+          '<div class="detail-summary-bar">' +
+          '\ud83d\udcca T\u1ed5ng <b>' + rows.length + '</b> / ' + wd + ' ng\u00e0y l\u00e0m' +
+          '\u00a0\u00a0\u2022\u00a0\u00a0' + statusStr +
+          '</div>';
+        html += rows.map(function(r,i) {
+          return '<div class="rpt-item">' +
+            '<div class="rpt-num">' + (i+1) + '</div>' +
+            '<div class="rpt-info">' +
+              '<div class="rpt-date">\ud83d\udcc5 Ng\u00e0y b\u00e1o c\u00e1o: <b>' + r.ngayBaoCao + '</b></div>' +
+              '<div class="rpt-time">\ud83d\udd52 G\u1eedi l\u00fac: ' + r.ngayGui + '</div>' +
+              '<div class="rpt-dept">\ud83c\udfe2 ' + r.tenPhong + '</div>' +
+            '</div></div>';
+        }).join('');
+        body.innerHTML = html;
+      }
+      document.getElementById('detailOverlay').classList.add('show');
+    }
+    function closeDetailBtn() {
+      document.getElementById('detailOverlay').classList.remove('show');
+    }
+
+
     init();
   </script>
 </body>
