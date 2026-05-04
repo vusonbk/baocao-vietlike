@@ -1023,6 +1023,8 @@
         fileInput.value = '';
         fileInfoEl.className = 'file-info';
         fileInfoEl.textContent = 'Ch\u01b0a ch\u1ecdn t\u1ec7p n\u00e0o \u2014 h\u1ed7 tr\u1ee3 .doc .xls .ppt .pdf .rar .zip';
+        // Tải lại thống kê ngay sau khi gửi thành công
+        loadStats();
       })
       .catch(function(err) { loading(false); showErr('L\u1ed7i k\u1ebft n\u1ed1i: ' + err.message); });
     }
