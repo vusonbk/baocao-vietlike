@@ -808,33 +808,35 @@
       summaryBox.innerHTML = '\u0110ang nh\u1eadp b\u00e1o c\u00e1o: <b>' + esc(SESSION.hoTen) + '</b> \u2014 Ph\u00f2ng <b>' + esc(SESSION.tenPhong) + '</b>.';
     }
 
+    function makeTaskCard(i) {
+      return '<div class="task-card" data-i="' + i + '">' +
+        '<div class="task-head">' +
+          '<div class="task-title">C\u00f4ng vi\u1ec7c ' + i + '</div>' +
+          '<button type="button" class="remove-btn" onclick="removeTask()">X\u00f3a</button>' +
+        '</div>' +
+        '<div class="task-grid">' +
+          '<div>' +
+            '<label class="required">N\u1ed9i dung c\u00f4ng vi\u1ec7c</label>' +
+            '<textarea class="tc" rows="2" placeholder="Nh\u1eadp c\u00f4ng vi\u1ec7c \u0111\u00e3 th\u1ef1c hi\u1ec7n..."></textarea>' +
+          '</div>' +
+          '<div class="status-col">' +
+            '<label class="required">Tr\u1ea1ng th\u00e1i</label>' +
+            '<select class="ts">' +
+              '<option value="">Ch\u1ecdn</option>' +
+              '<option value="Ho\u00e0n th\u00e0nh">Ho\u00e0n th\u00e0nh</option>' +
+              '<option value="\u0110ang th\u1ef1c hi\u1ec7n">\u0110ang th\u1ef1c hi\u1ec7n</option>' +
+              '<option value="Kh\u00f3 kh\u0103n">Kh\u00f3 kh\u0103n</option>' +
+              '<option value="Kh\u00f4ng th\u1ef1c hi\u1ec7n">Kh\u00f4ng th\u1ef1c hi\u1ec7n</option>' +
+            '</select>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
     function renderTasks() {
       taskListEl.innerHTML = '';
       for (var i=1; i<=S.tasks; i++) {
-        taskListEl.insertAdjacentHTML('beforeend',
-          '<div class="task-card" data-i="' + i + '">' +
-            '<div class="task-head">' +
-              '<div class="task-title">C\u00f4ng vi\u1ec7c ' + i + '</div>' +
-              '<button type="button" class="remove-btn" onclick="removeTask()">X\u00f3a</button>' +
-            '</div>' +
-            '<div class="task-grid">' +
-              '<div>' +
-                '<label class="required">N\u1ed9i dung c\u00f4ng vi\u1ec7c</label>' +
-                '<textarea class="tc" rows="2" placeholder="Nh\u1eadp c\u00f4ng vi\u1ec7c \u0111\u00e3 th\u1ef1c hi\u1ec7n..."></textarea>' +
-              '</div>' +
-              '<div class="status-col">' +
-                '<label class="required">Tr\u1ea1ng th\u00e1i</label>' +
-                '<select class="ts">' +
-                  '<option value="">Ch\u1ecdn</option>' +
-                  '<option value="Ho\u00e0n th\u00e0nh">Ho\u00e0n th\u00e0nh</option>' +
-                  '<option value="\u0110ang th\u1ef1c hi\u1ec7n">\u0110ang th\u1ef1c hi\u1ec7n</option>' +
-                  '<option value="Kh\u00f3 kh\u0103n">Kh\u00f3 kh\u0103n</option>' +
-                  '<option value="Kh\u00f4ng th\u1ef1c hi\u1ec7n">Kh\u00f4ng th\u1ef1c hi\u1ec7n</option>' +
-                '</select>' +
-              '</div>' +
-            '</div>' +
-          '</div>'
-        );
+        taskListEl.insertAdjacentHTML('beforeend', makeTaskCard(i));
       }
       updateRemove();
       addBtn.disabled = S.tasks >= S.max;
@@ -846,8 +848,30 @@
         b.style.display = S.tasks > 2 ? 'inline-block' : 'none';
       });
     }
-    function addTask()    { if (S.tasks < S.max) { S.tasks++; renderTasks(); } }
-    function removeTask() { if (S.tasks > 2)     { S.tasks--; renderTasks(); } }
+
+    function addTask() {
+      if (S.tasks >= S.max) return;
+      S.tasks++;
+      // Chỉ append card mới — KHÔNG xóa card cũ đã nhập
+      taskListEl.insertAdjacentHTML('beforeend', makeTaskCard(S.tasks));
+      updateRemove();
+      addBtn.disabled = S.tasks >= S.max;
+      addBtn.textContent = S.tasks >= S.max ? '\u0110\u00e3 \u0111\u1ea1t t\u1ed1i \u0111a 10 c\u00f4ng vi\u1ec7c' : '+ Th\u00eam vi\u1ec7c';
+      // Scroll card mới vào view
+      var cards = taskListEl.querySelectorAll('.task-card');
+      if (cards.length) cards[cards.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function removeTask() {
+      if (S.tasks <= 2) return;
+      // Chỉ xóa card cuối — KHÔNG render lại toàn bộ
+      var cards = taskListEl.querySelectorAll('.task-card');
+      if (cards.length) taskListEl.removeChild(cards[cards.length - 1]);
+      S.tasks--;
+      updateRemove();
+      addBtn.disabled = false;
+      addBtn.textContent = '+ Th\u00eam vi\u1ec7c';
+    }
 
     /* VALIDATE */
     function validate() {
