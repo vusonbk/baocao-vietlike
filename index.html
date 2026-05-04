@@ -1087,34 +1087,44 @@
       return 'Th\u00e1ng\u00a0' + m + '\u00a0/\u00a0' + y;
     }
 
+    // Đếm số ngày làm việc duy nhất có báo cáo (gửi nhiều báo cáo 1 ngày vẫn tính 1)
+    function uniqueDays(rows) {
+      var seen = {};
+      rows.forEach(function(r) { seen[r.ngayBaoCao] = true; });
+      return Object.keys(seen).length;
+    }
+
     function renderStatsCards() {
-      var cCnt = STATS.current.length, pCnt = STATS.prev.length;
-      var cWd  = wdInMonth(STATS.cy, STATS.cm);
-      var pWd  = wdInMonth(STATS.py, STATS.pm);
-      var cDue = wdUpToday(STATS.cy, STATS.cm);
-      var cMiss= Math.max(0, cDue - cCnt);
-      var pMiss= Math.max(0, pWd  - pCnt);
+      var cDays = uniqueDays(STATS.current);
+      var pDays = uniqueDays(STATS.prev);
+      var cCnt  = STATS.current.length;   // tổng số lượt báo cáo (để hiện trong popup)
+      var pCnt  = STATS.prev.length;
+      var cWd   = wdInMonth(STATS.cy, STATS.cm);
+      var pWd   = wdInMonth(STATS.py, STATS.pm);
+      var cDue  = wdUpToday(STATS.cy, STATS.cm);
+      var cMiss = Math.max(0, cDue  - cDays);
+      var pMiss = Math.max(0, pWd   - pDays);
 
       var cStatus = cMiss > 0
         ? '<span style="color:#bf360c;">\u26a0\ufe0f C\u00f3 th\u1ec3 thi\u1ebfu ' + cMiss + ' ng\u00e0y</span>'
-        : (cCnt > 0 ? '<span style="color:#2d7a2d;">\u2705 \u0110\u1ee7 ' + cDue + ' ng\u00e0y</span>' : '<span style="color:#9e9e9e;">\u2014</span>');
+        : (cDays > 0 ? '<span style="color:#2d7a2d;">\u2705 \u0110\u1ee7 ' + cDue + ' ng\u00e0y</span>' : '<span style="color:#9e9e9e;">\u2014</span>');
       var pStatus = pMiss > 0
         ? '<span style="color:#bf360c;">\u26a0\ufe0f Thi\u1ebfu ' + pMiss + '/' + pWd + ' ng\u00e0y</span>'
-        : (pCnt > 0 ? '<span style="color:#2d7a2d;">\u2705 \u0110\u1ee7 ' + pWd + '/' + pWd + ' ng\u00e0y</span>'
-                    : '<span style="color:#c62828;">\u274c Ch\u01b0a c\u00f3 b\u00e1o c\u00e1o</span>');
+        : (pDays > 0 ? '<span style="color:#2d7a2d;">\u2705 \u0110\u1ee7 ' + pWd + '/' + pWd + ' ng\u00e0y</span>'
+                     : '<span style="color:#c62828;">\u274c Ch\u01b0a c\u00f3 b\u00e1o c\u00e1o</span>');
 
       document.getElementById('statsPanel').innerHTML =
         '<div class="stat-card" onclick="openDetail(\'current\')">' +
           '<div class="stat-month">' + mnName(STATS.cm, STATS.cy) + '</div>' +
-          '<div class="stat-count">' + cCnt + '</div>' +
-          '<div class="stat-label">b\u00e1o c\u00e1o \u0111\u00e3 g\u1eedi</div>' +
+          '<div class="stat-count">' + cDays + '</div>' +
+          '<div class="stat-label">ng\u00e0y \u0111\u00e3 b\u00e1o c\u00e1o / ' + cDue + ' ng\u00e0y l\u00e0m</div>' +
           '<div class="stat-status">' + cStatus + '</div>' +
           '<div class="stat-hint">\ud83d\udccb Xem chi ti\u1ebft \u2192</div>' +
         '</div>' +
         '<div class="stat-card prev-month" onclick="openDetail(\'prev\')">' +
           '<div class="stat-month">' + mnName(STATS.pm, STATS.py) + '</div>' +
-          '<div class="stat-count">' + pCnt + '</div>' +
-          '<div class="stat-label">b\u00e1o c\u00e1o \u0111\u00e3 g\u1eedi</div>' +
+          '<div class="stat-count">' + pDays + '</div>' +
+          '<div class="stat-label">ng\u00e0y \u0111\u00e3 b\u00e1o c\u00e1o / ' + pWd + ' ng\u00e0y l\u00e0m</div>' +
           '<div class="stat-status">' + pStatus + '</div>' +
           '<div class="stat-hint">\ud83d\udccb Xem chi ti\u1ebft \u2192</div>' +
         '</div>';
@@ -1125,7 +1135,8 @@
       var y     = which === 'current' ? STATS.cy : STATS.py;
       var m     = which === 'current' ? STATS.cm : STATS.pm;
       var wd    = wdInMonth(y, m);
-      var miss  = Math.max(0, wd - rows.length);
+      var days  = uniqueDays(rows);
+      var miss  = Math.max(0, wd - days);
 
       document.getElementById('detailTitle').textContent    = mnName(m,y) + ' \u2014 ' + SESSION.hoTen;
       document.getElementById('detailSubtitle').textContent = 'Ph\u00f2ng ' + SESSION.tenPhong;
@@ -1137,20 +1148,46 @@
         var statusStr = miss > 0
           ? '<span style="color:#bf360c;">\u26a0\ufe0f Thi\u1ebfu ' + miss + ' ng\u00e0y</span>'
           : '<span style="color:#1b5e20;">\u2705 \u0110\u1ee7 ' + wd + ' ng\u00e0y l\u00e0m vi\u1ec7c</span>';
+
+        // Gom nhóm báo cáo theo ngày
+        var grouped = {};
+        var dayOrder = [];
+        rows.forEach(function(r) {
+          if (!grouped[r.ngayBaoCao]) {
+            grouped[r.ngayBaoCao] = [];
+            dayOrder.push(r.ngayBaoCao);
+          }
+          grouped[r.ngayBaoCao].push(r);
+        });
+
         var html =
           '<div class="detail-summary-bar">' +
-          '\ud83d\udcca T\u1ed5ng <b>' + rows.length + '</b> / ' + wd + ' ng\u00e0y l\u00e0m' +
+          '\ud83d\udcca <b>' + days + '</b> ng\u00e0y b\u00e1o c\u00e1o / ' + wd + ' ng\u00e0y l\u00e0m' +
+          (rows.length > days ? ' &nbsp;<span style="color:#4a6741;font-size:12px;">(' + rows.length + ' l\u01b0\u1ee3t g\u1eedi)</span>' : '') +
           '\u00a0\u00a0\u2022\u00a0\u00a0' + statusStr +
           '</div>';
-        html += rows.map(function(r,i) {
-          return '<div class="rpt-item">' +
+
+        dayOrder.forEach(function(ngay, i) {
+          var rpts = grouped[ngay];
+          var subRows = rpts.length > 1
+            ? rpts.map(function(r, j) {
+                return '<div style="font-size:12px;color:#4a6741;padding:3px 0 3px 28px;">' +
+                  '\ud83d\udd52 L\u01b0\u1ee3t ' + (j+1) + ': ' + r.ngayGui +
+                  '</div>';
+              }).join('')
+            : '';
+          html += '<div class="rpt-item">' +
             '<div class="rpt-num">' + (i+1) + '</div>' +
             '<div class="rpt-info">' +
-              '<div class="rpt-date">\ud83d\udcc5 Ng\u00e0y b\u00e1o c\u00e1o: <b>' + r.ngayBaoCao + '</b></div>' +
-              '<div class="rpt-time">\ud83d\udd52 G\u1eedi l\u00fac: ' + r.ngayGui + '</div>' +
-              '<div class="rpt-dept">\ud83c\udfe2 ' + r.tenPhong + '</div>' +
+              '<div class="rpt-date">\ud83d\udcc5 Ng\u00e0y b\u00e1o c\u00e1o: <b>' + ngay + '</b>' +
+                (rpts.length > 1 ? ' <span style="font-size:11px;background:#fff3e0;color:#e65100;border-radius:10px;padding:1px 7px;margin-left:6px;">' + rpts.length + ' l\u01b0\u1ee3t</span>' : '') +
+              '</div>' +
+              (rpts.length === 1
+                ? '<div class="rpt-time">\ud83d\udd52 G\u1eedi l\u00fac: ' + rpts[0].ngayGui + '</div>'
+                : subRows) +
+              '<div class="rpt-dept">\ud83c\udfe2 ' + rpts[0].tenPhong + '</div>' +
             '</div></div>';
-        }).join('');
+        });
         body.innerHTML = html;
       }
       document.getElementById('detailOverlay').classList.add('show');
