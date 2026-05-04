@@ -809,18 +809,23 @@
     }
 
     function makeTaskCard(i) {
+      var isOptional = i > 1;
+      var labelClass = isOptional ? '' : 'required';
+      var optBadge   = isOptional
+        ? ' <span style="font-size:11px;font-weight:600;color:#4a6741;background:#e8f5e9;border:1px solid #c5e1a5;border-radius:20px;padding:2px 9px;vertical-align:middle;">T\u00f9y ch\u1ecdn</span>'
+        : '';
       return '<div class="task-card" data-i="' + i + '">' +
         '<div class="task-head">' +
-          '<div class="task-title">C\u00f4ng vi\u1ec7c ' + i + '</div>' +
+          '<div class="task-title">C\u00f4ng vi\u1ec7c ' + i + optBadge + '</div>' +
           '<button type="button" class="remove-btn" onclick="removeTask()">X\u00f3a</button>' +
         '</div>' +
         '<div class="task-grid">' +
           '<div>' +
-            '<label class="required">N\u1ed9i dung c\u00f4ng vi\u1ec7c</label>' +
-            '<textarea class="tc" rows="2" placeholder="Nh\u1eadp c\u00f4ng vi\u1ec7c \u0111\u00e3 th\u1ef1c hi\u1ec7n..."></textarea>' +
+            '<label class="' + labelClass + '">N\u1ed9i dung c\u00f4ng vi\u1ec7c</label>' +
+            '<textarea class="tc" rows="2" placeholder="' + (isOptional ? 'Nh\u1eadp th\u00eam c\u00f4ng vi\u1ec7c (n\u1ebfu c\u00f3)...' : 'Nh\u1eadp c\u00f4ng vi\u1ec7c \u0111\u00e3 th\u1ef1c hi\u1ec7n...') + '"></textarea>' +
           '</div>' +
           '<div class="status-col">' +
-            '<label class="required">Tr\u1ea1ng th\u00e1i</label>' +
+            '<label class="' + labelClass + '">Tr\u1ea1ng th\u00e1i</label>' +
             '<select class="ts">' +
               '<option value="">Ch\u1ecdn</option>' +
               '<option value="Ho\u00e0n th\u00e0nh">Ho\u00e0n th\u00e0nh</option>' +
@@ -881,16 +886,30 @@
       for (var i=0; i<cards.length; i++) {
         var tc = cards[i].querySelector('.tc');
         var ts = cards[i].querySelector('.ts');
-        if (!tc.value.trim()) return fail('Vui l\u00f2ng nh\u1eadp n\u1ed9i dung c\u00f4ng vi\u1ec7c s\u1ed1 '+(i+1), tc);
-        if (!ts.value)        return fail('Vui l\u00f2ng ch\u1ecdn tr\u1ea1ng th\u00e1i c\u00f4ng vi\u1ec7c s\u1ed1 '+(i+1), ts);
+        var hasContent  = tc.value.trim() !== '';
+        var hasStatus   = ts.value !== '';
+        if (i === 0) {
+          // Công việc 1: bắt buộc cả nội dung lẫn trạng thái
+          if (!hasContent) return fail('Vui l\u00f2ng nh\u1eadp n\u1ed9i dung c\u00f4ng vi\u1ec7c s\u1ed1 1.', tc);
+          if (!hasStatus)  return fail('Vui l\u00f2ng ch\u1ecdn tr\u1ea1ng th\u00e1i c\u00f4ng vi\u1ec7c s\u1ed1 1.', ts);
+        } else {
+          // Công việc 2+: tùy chọn — nếu nhập nội dung thì phải chọn trạng thái
+          if (hasContent && !hasStatus)  return fail('Vui l\u00f2ng ch\u1ecdn tr\u1ea1ng th\u00e1i c\u00f4ng vi\u1ec7c s\u1ed1 ' + (i+1) + '.', ts);
+          if (!hasContent && hasStatus)  return fail('Vui l\u00f2ng nh\u1eadp n\u1ed9i dung c\u00f4ng vi\u1ec7c s\u1ed1 ' + (i+1) + ' ho\u1eb7c x\u00f3a tr\u1ea1ng th\u00e1i.', tc);
+        }
       }
       return true;
     }
 
     function payload() {
-      var tasks = Array.from(document.querySelectorAll('.task-card')).map(function(c) {
-        return { noiDung:c.querySelector('.tc').value.trim(), trangThai:c.querySelector('.ts').value };
-      });
+      // Lọc bỏ task tùy chọn để trống (từ task 2 trở đi không có nội dung)
+      var tasks = Array.from(document.querySelectorAll('.task-card'))
+        .map(function(c) {
+          return { noiDung:c.querySelector('.tc').value.trim(), trangThai:c.querySelector('.ts').value };
+        })
+        .filter(function(t, idx) {
+          return idx === 0 || t.noiDung !== ''; // Task 1 luôn giữ; task 2+ chỉ giữ nếu có nội dung
+        });
       return {
         ngayBaoCao:    ngayEl.value,
         maPhong:       SESSION.maPhong,
